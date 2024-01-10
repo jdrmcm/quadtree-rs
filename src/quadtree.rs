@@ -1,6 +1,7 @@
 use nannou::prelude::*;
 use serde::{Serialize, Deserialize};
 use std::fs;
+use rand::random;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct Point {
@@ -19,14 +20,14 @@ impl Point {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Rectangle {
-    x: usize,
-    y: usize,
-    w: usize,
-    h: usize,
+    x: f64,
+    y: f64,
+    w: f64,
+    h: f64,
 }
 
 impl Rectangle {
-    pub fn new(x: usize, y: usize, w: usize, h: usize) -> Self {
+    pub fn new(x: f64, y: f64, w:f64, h: f64) -> Self {
         Self {
             x,
             y,
@@ -36,10 +37,10 @@ impl Rectangle {
     }
 
     fn contains(&self, point: Point) -> bool {
-        return point.x > (self.x - self.w) as f64 &&
-                point.x < (self.x + self.w) as f64 &&
-                point.y > (self.y - self.h) as f64 &&
-                point.y < (self.y + self.h) as f64
+        return point.x > (self.x - self.w) &&
+                point.x < (self.x + self.w) &&
+                point.y > (self.y - self.h) &&
+                point.y < (self.y + self.h)
     }
 }
 
@@ -72,13 +73,13 @@ impl QuadTree {
     fn subdivide(&mut self) {
         let b = &self.boundary;
 
-        let ne = Rectangle::new(b.x + b.w/2, b.y - b.h / 2, b.w/2, b.h/2);
+        let ne = Rectangle::new(b.x + b.w/2.0, b.y - b.h / 2.0, b.w/2.0, b.h/2.0);
         self.northeast = Some(Box::new(QuadTree::new(ne, self.capacity)));
-        let nw = Rectangle::new(b.x - b.w/2, b.y - b.h / 2, b.w/2, b.h/2);
+        let nw = Rectangle::new(b.x - b.w/2.0, b.y - b.h / 2.0, b.w/2.0, b.h/2.0);
         self.northwest = Some(Box::new(QuadTree::new(nw, self.capacity)));
-        let se = Rectangle::new(b.x + b.w/2, b.y + b.h / 2, b.w/2, b.h/2);
+        let se = Rectangle::new(b.x + b.w/2.0, b.y + b.h / 2.0, b.w/2.0, b.h/2.0);
         self.southeast = Some(Box::new(QuadTree::new(se, self.capacity)));
-        let sw = Rectangle::new(b.x - b.w/2, b.y + b.h / 2, b.w/2, b.h/2);
+        let sw = Rectangle::new(b.x - b.w/2.0, b.y + b.h / 2.0, b.w/2.0, b.h/2.0);
         self.southwest = Some(Box::new(QuadTree::new(sw, self.capacity)));
 
         self.divided = true;
@@ -127,6 +128,31 @@ fn view(app: &App, frame: Frame) {
     // set background to blue
     draw.background().color(DARKOLIVEGREEN);
 
+    show_quadtree(Box::new(read_data()),  &draw);
+
     // put everything on the frame
     draw.to_frame(app, &frame).unwrap();
+}
+
+fn show_quadtree(qt: Box<QuadTree>, draw: &Draw) {
+    draw.rect()
+        .x_y(qt.boundary.x as f32, qt.boundary.y as f32)
+        .w(qt.boundary.w as f32*2.0)
+        .h(qt.boundary.h as f32*2.0)
+        .hsv(random(), random(), random());
+
+    if qt.divided {
+        show_quadtree(qt.northeast.unwrap(), draw);
+        show_quadtree(qt.northwest.unwrap(), draw);
+        show_quadtree(qt.southeast.unwrap(), draw);
+        show_quadtree(qt.southwest.unwrap(), draw);
+    }
+
+    for point in qt.points {
+        draw.ellipse()
+            .color(WHITE)
+            .x_y(point.x as f32, point.y as f32)
+            .w(5.0)
+            .h(5.0);
+    }
 }
