@@ -135,11 +135,11 @@ fn show_quadtree(qt: Box<QuadTree>, draw: &Draw) {
         show_quadtree(qt.southeast.unwrap(), draw);
         show_quadtree(qt.southwest.unwrap(), draw);
     }
-    /*for point in qt.points {
+    for point in qt.points {
         draw.ellipse()
             .color(WHITE)
-            .x_y(point.x as f32, point.y as f32)
+            .x_y(point.x as f32 - 200.0, point.y as f32 - 200.0)
             .w(3.0)
             .h(3.0);
-    }*/
+    }
 }
