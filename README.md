@@ -3,9 +3,6 @@ quadtree implementation in rust
 
 ## usage
 
-using `cargo run` should export to data.json in working directory
+using `cargo run {amount}` should export to data.json in working directory and display data on screen with points
 
-## TODO
-
-- args for variable amounts of points
-- visualization using [nannou](https://crates.io/crates/nannou)https://crates.io/crates/nannou
+![image](https://github.com/jdrmcm/quadtree-rs/assets/102840632/bc82de1a-d97c-4c2d-8105-c46323aac0e4)
